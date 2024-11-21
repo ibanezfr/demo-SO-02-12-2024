@@ -1,0 +1,145 @@
+{iniciar parrot}
+  #el i= el contenedor no se cierra despues de que se inicie
+  #t= shell interactiva con con colores para comodidad
+  docker run -it parrot-bash
+
+{iniciar alpine}
+  docker run -it alpine
+
+{procesos en docker}
+  #-a=muestra todos los contenedores hasta los detenidos
+  docker ps -a
+
+{eliminar todos los contenedores}
+  # -aq solo muestra los id de los detenidos 
+  docker rm $(docker ps -aq)
+
+{montar contenedores}
+  #el .= usa el dir actual como contexto para la constuccion de la imagen
+  # el -t es para nombrar la imagen
+  docker build -t parrot-bash .
+
+{ejecutar comandos fuera el la shell del docker}
+  docker exec -it <nombre_correcto_del_contenedor> sudo ls /root
+
+{docker info}
+
+docker info
+
+{levantar el gentoo}
+docker build -t gentoo_docker .
+
+{lanzare el gentoo}
+docker run -it gentoo-image
+
+{borrar imagenes ya construidas}
+docker rmi <image id>
+
+{contenedores asosiados a la imagen[se usa si estan en procesos deamon]}
+docker ps -a --filter "ancestor=ID_CONTENEDOR"
+
+{buscar procesos docker}
+docker ps
+
+{para procesos de docker}
+docker stop ID_PROCESO
+
+{eliminar el proceso del contenedor}
+docker rm ID_PROCESO
+
+{crear red en docker}
+docker network create my_network
+
+{agregar los contenedores a la red}
+docker run -d --name ubuntu-container --network my_network ubuntu:latest
+
+
+{register redhat}
+docker login registry.redhat.io
+docker logout registry.redhat.io
+subscription-manager register --username=<user/email> --password='password'
+
+{commit en docker}
+docker commit 4d2e4d0f8cf9 mi_imagen_personalizada:latest
+
+{pull en docker}
+docker pull <nombre_imagen>:<etiqueta> por ej docker pull ubuntu:20.04
+docker pull registry.access.redhat.com/ubi9/ubi:latest
+
+{cfg telnet}
+cat /etc/xinetd.d/telnet
+
+-e service telnet {
+    disable = no
+    socket_type = stream
+    protocol = tcp
+    wait = no
+    user = root
+    server = /usr/sbin/in.telnetd
+    log_on_failure += USERID
+}
+
+{ver los miembros de una red}
+docker network inspect <nombre_de_red>
+
+{cambiar nombre de los contenedores}
+docker rename <nombre a cambiar> <nuevo nombre>
+
+{agregar gente a mi red docker}
+docker network connect mi_red_docker mi_contenedor
+
+{entrar al contenedor desde el proceso}
+docker exec -it 29cf0a732b44 bash
+
+{si el proceso de inetd corre}
+ps aux | grep inetd
+
+{ejecuta contenedor con telnet con el bin en: }
+docker run -d -p 23:23 debian-v1 /usr/sbin/in.telnetd -D
+
+{iniciar el contenedor con el bin de telnet en: }
+docker run -d -p 23:23 debian-v1 /usr/sbin/telnetd
+
+{para ssh}
+docker run -it -d -p 23:23 debian-v2 /usr/sbin/sshd -D
+
+{instala telnet}
+apt-get update
+apt-get install telnetd
+
+{ INICIA TELNET}
+service openbsd-inetd start
+
+{SINO INSTALA INETD}
+apt-get install openbsd-inetd
+
+{ver los puertos en escucha}
+netstat -tuln | grep 23
+
+{ver servicios en escucha}
+netstat -ltp
+
+
+-------------- USUARIOS redhat ------------------
+dnf install -y sudo
+sudo useradd -m -d /home/s-o -s /bin/bash s-o {-s establece la shell, -d el directorio del user}
+passwd s-o
+usermod -aG wheel s-o {wheel agrega al user al grupo}
+
+
+-------------- USUARIOS gentoo -----------------
+
+su -c "emerge app-admin/sudo" {instala el sudo con emerge}
+    
+------------------INICIO CON OPEN PORT -----------------
+docker run -it --name redhat -p 23:23 redhat:latest /bin/bash
+
+
+-------------- FIREWALL ------------------
+
+sudo apt-get install ufw
+sudo ufw allow in on docker0
+sudo ufw allow 80/tcp
+sudo ufw allow 443/tcp
+sudo ufw enable
+sudo ufw status 
