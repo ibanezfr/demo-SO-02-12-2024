@@ -94,21 +94,22 @@ docker exec -it 29cf0a732b44 bash
 {si el proceso de inetd corre}
 ps aux | grep inetd
 
-{ejecuta contenedor con telnet con el bin en: }
-docker run -d -p 23:23 debian-v1 /usr/sbin/in.telnetd -D
-
 {iniciar el contenedor con el bin de telnet en: }
 docker run -d -p 23:23 debian-v1 /usr/sbin/telnetd
 
 {para ssh}
 docker run -it -d -p 23:23 debian-v2 /usr/sbin/sshd -D
 
+{ejecutar el debian con los port}
+docker run -it -p 2323:23 debian-v4
+
 {instala telnet}
 apt-get update
 apt-get install telnetd
 
 { INICIA TELNET}
-service openbsd-inetd start
+service openbsd-inetd start  {debian}
+/usr/sbin/rinetd   /      sudo /etc/init.d/local start     {gentoo}
 
 {SINO INSTALA INETD}
 apt-get install openbsd-inetd
@@ -116,9 +117,14 @@ apt-get install openbsd-inetd
 {ver los puertos en escucha}
 netstat -tuln | grep 23
 
+{verificar servicio rinetd en gentoo}
+ps aux | grep rinetd
+
 {ver servicios en escucha}
 netstat -ltp
 
+{para modificar el rinetd(es como el inetd pero en gentoo)}
+nano /etc/rinetd.conf
 
 -------------- USUARIOS redhat ------------------
 dnf install -y sudo
@@ -142,4 +148,52 @@ sudo ufw allow in on docker0
 sudo ufw allow 80/tcp
 sudo ufw allow 443/tcp
 sudo ufw enable
-sudo ufw status 
+sudo ufw status
+
+
+
+{CFG del archivo /etc/inetd.conf}
+
+# /etc/inetd.conf:  see inetd(8) for further informations.
+#
+# Internet superserver configuration database
+#
+#
+# Lines starting with "#:LABEL:" or "#<off>#" should not
+# be changed unless you know what you are doing!
+#
+# If you want to disable an entry so it isn't touched during
+# package updates just comment it out with a single '#' character.
+#
+# Packages should modify this file by using update-inetd(8)
+#
+# <service_name> <sock_type> <proto> <flags> <user> <server_path> <args>
+#
+#:INTERNAL: Internal services
+#echo           stream  tcp     nowait  root    internal
+#discard                stream  tcp     nowait  root    internal
+#discard                dgram   udp     wait    root    internal
+#daytime                stream  tcp     nowait  root    internal
+#time           stream  tcp     nowait  root    internal
+#chargen                stream  tcp     nowait  root    internal
+
+telnet  stream  tcp     nowait  root  /usr/sbin/telnetd in.telnetd      {esta es la linea importante}
+
+#:STANDARD: These are standard services.
+
+#:BSD: Shell, login, exec and talk are BSD protocols.
+
+#:MAIL: Mail, news and uucp services.
+
+#:INFO: Info services
+
+#:BOOT: TFTP service is provided primarily for booting.  Most sites
+#       run this only on machines acting as "boot servers."
+
+#:RPC: RPC based services
+
+#:HAM-RADIO: amateur-radio services
+
+#:OTHER: Other services
+
+
